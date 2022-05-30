@@ -1,5 +1,6 @@
 import hashlib
 import base64
+import hmac
 
 dword_5C008 = [
     0x16A, 0x151, 0xD7, 0x134, 0x196, 0x229, 0x67, 0xFA,
@@ -102,6 +103,16 @@ def KuanxueSign(start_time: int, first_install_time: int, random_long: int, pack
 
     sha_a.update(sha_b.digest())
     part1 = sha_a.hexdigest()
+
+    key = "{:08x}{:08x}".format(start_time, first_install_time).encode('utf-8')
+    input = package_code_path.encode('utf-8')
+    signature = hmac.new(
+        key,
+        msg=input,
+        digestmod=hashlib.sha256
+    ).hexdigest()
+
+    assert (part1 == signature)
 
     # part 2
     part2 = ''
